@@ -57,7 +57,7 @@ for date, row in data.items():
         continue
     # sell or continue if date exceeds threshold
     if date > end_date:
-        if not iteration: continue
+        if not iteration: break
         iteration = interval
 
     rate = float(row[2])
@@ -89,3 +89,10 @@ for date, row in data.items():
         profit = balance + amount
         print "[{date}] Waiting {btc_balance} BTC @ {rate:.2f} = {amount:.2f} {currency} ({profit:+.2f} {currency})".format(**locals())
     iteration += 1
+
+if btc_balance:
+    amount = btc_balance * rate
+    balance += amount
+    print "Selling remaining {btc_balance} BTC @ {rate:.2f} = {amount:.2f} {currency}\n".format(**locals())
+
+print "Final balance: {balance:.2f} {currency}".format(**locals())
