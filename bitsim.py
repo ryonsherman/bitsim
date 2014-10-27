@@ -21,6 +21,8 @@ parser.add_argument('end_date',
     help="Date to end transactions (default: %(default)s)")
 parser.add_argument('interval', type=int,
     help="Interval to make transactions")
+parser.add_argument('--quiet', action='store_true',
+    help="Output only final balance")
 args = parser.parse_args()
 
 deposit = round(float(args.deposit), 2)
@@ -64,7 +66,8 @@ for date, row in data.items():
         balance -= deposit
         amount = (1 / rate) * deposit
         btc_balance += amount
-        print "[{date}] Buying {deposit:.2f} {currency} @ {rate:.2f} {currency} per BTC = {amount} BTC ({balance:.2f} {currency} / {btc_balance} BTC)".format(**locals())
+        if not args.quiet:
+            print "[{date}] Buying {deposit:.2f} {currency} @ {rate:.2f} {currency} per BTC = {amount} BTC ({balance:.2f} {currency} / {btc_balance} BTC)".format(**locals())
     # sell if last iteration
     elif iteration == interval:
         btc_amount = btc_balance if not args.save else (1 / rate) * deposit
@@ -76,19 +79,25 @@ for date, row in data.items():
         balance += amount
         profit = btc_balance * rate
         balance += profit
-        print "[{date}] Selling {btc_amount} BTC @ {rate:.2f} {currency} per BTC = {amount:.2f} {currency} ({balance:.2f} {currency} / {btc_balance} BTC)\n".format(**locals())
+        if not args.quiet:
+            print "[{date}] Selling {btc_amount} BTC @ {rate:.2f} {currency} per BTC = {amount:.2f} {currency} ({balance:.2f} {currency} / {btc_balance} BTC)\n".format(**locals())
         iteration = 0
         continue
     # wait if iterating
     else:
         amount = btc_balance * rate
         profit = balance + amount
-        print "[{date}] Waiting {btc_balance} BTC @ {rate:.2f} = {amount:.2f} {currency} ({profit:+.2f} {currency})".format(**locals())
+        if not args.quiet:
+            print "[{date}] Waiting {btc_balance} BTC @ {rate:.2f} = {amount:.2f} {currency} ({profit:+.2f} {currency})".format(**locals())
     iteration += 1
 
 if btc_balance:
     amount = btc_balance * rate
     balance += amount
-    print "Selling remaining {btc_balance} BTC @ {rate:.2f} = {amount:.2f} {currency}\n".format(**locals())
+    if not args.quiet:
+        print "Selling remaining {btc_balance} BTC @ {rate:.2f} = {amount:.2f} {currency}\n".format(**locals())
 
-print "Final balance: {balance:.2f} {currency}".format(**locals())
+if not args.quiet:
+    print "Final balance: {balance:.2f} {currency}".format(**locals())
+else:
+    print "{:.2f}".format(balance)
