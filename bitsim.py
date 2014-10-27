@@ -52,13 +52,9 @@ btc_balance = 0
 
 iteration = 0
 for date, row in data.items():
-    # continue if date does not meet threshold
-    if date < start_date:
+    # continue if date not within range
+    if date < start_date or date > end_date:
         continue
-    # sell or continue if date exceeds threshold
-    if date > end_date:
-        if not iteration: break
-        iteration = interval
 
     rate = float(row[2])
     date = date.strftime('%Y-%m-%d')
