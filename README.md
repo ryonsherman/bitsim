@@ -1,0 +1,4 @@
+bitsim
+======
+
+Bitcoin investment simulator
